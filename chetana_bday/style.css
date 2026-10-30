@@ -1,0 +1,926 @@
+:root {
+  --bg1: #210518;
+  --bg2: #b0235f;
+  --gold: #ffd86b;
+}
+* {
+  box-sizing: border-box;
+}
+html {
+  scroll-behavior: smooth;
+}
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: #fff;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  background: var(--bg1);
+  overflow-x: hidden;
+  text-align: center;
+}
+/* FIX: fixed gradient moved to its own layer (fast on phones) */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at 50% 0%,
+    var(--bg2) 0%,
+    #5b0d37 45%,
+    var(--bg1) 100%
+  );
+}
+.hide {
+  display: none !important;
+}
+.stars {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+}
+.stars i {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: #fff;
+  border-radius: 50%;
+  animation: tw 3s infinite;
+}
+@keyframes tw {
+  50% {
+    opacity: 0.1;
+    transform: scale(0.5);
+  }
+}
+
+/* opening screen */
+#intro {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: var(--bg1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  transition: opacity 1s;
+}
+#intro.gone {
+  opacity: 0;
+  pointer-events: none;
+}
+#intro h2 {
+  font-family: Georgia, serif;
+  font-size: 2rem;
+  margin: 0;
+}
+
+/* chain lights */
+#chain {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 140px;
+  z-index: 3;
+  pointer-events: none;
+  transform: translateY(-160px);
+}
+.decor #chain {
+  animation: dropIn 2.4s 0.3s cubic-bezier(0.3, 1.2, 0.5, 1) forwards;
+}
+@keyframes dropIn {
+  to {
+    transform: translateY(0);
+  }
+}
+.bulb {
+  opacity: 0.15;
+}
+.decor .bulb {
+  animation: glow 1.6s 1.4s infinite alternate;
+}
+.music .bulb {
+  animation-duration: 0.5s;
+}
+/* FIX: opacity only, no drop-shadow filter */
+@keyframes glow {
+  from {
+    opacity: 0.35;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* hanging bulbs */
+.hang {
+  position: absolute;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform-origin: top center;
+  transform: scaleY(0);
+}
+.decor .hang {
+  animation:
+    lower 2.2s var(--dl) cubic-bezier(0.3, 1.3, 0.5, 1) forwards,
+    sw 4s calc(var(--dl) + 2.2s) ease-in-out infinite alternate;
+}
+.hang b {
+  width: 2px;
+  background: #888;
+}
+.hang span {
+  width: 32px;
+  height: 42px;
+  border-radius: 50% 50% 45% 45%;
+  background: radial-gradient(circle at 40% 35%, #fff, var(--c) 60%);
+  box-shadow: 0 0 12px 3px var(--c);
+} /* FIX: smaller glow */
+@keyframes lower {
+  to {
+    transform: scaleY(1);
+  }
+}
+@keyframes sw {
+  from {
+    transform: rotate(-7deg);
+  }
+  to {
+    transform: rotate(7deg);
+  }
+}
+
+/* banner */
+#banners {
+  position: absolute;
+  top: 92px;
+  left: 0;
+  right: 0;
+  z-index: 4;
+  pointer-events: none;
+}
+.lbwrap {
+  position: relative;
+  width: min(94vw, 620px);
+  margin: 0 auto;
+}
+.lbwrap::before {
+  content: "";
+  position: absolute;
+  inset: -12px -20px;
+  background: radial-gradient(ellipse, #ff2a7a66, transparent 70%);
+  opacity: 0;
+}
+.decor .lbwrap::before {
+  animation: pg 2.4s 6s infinite alternate both;
+}
+@keyframes pg {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 0.95;
+    transform: scale(1.06);
+  }
+}
+.bstr i {
+  position: absolute;
+  top: -60px;
+  width: 2px;
+  height: 70px;
+  background: #e8d9a8;
+  transform-origin: top;
+  scale: 1 0;
+}
+.bstr i:first-child {
+  left: 12%;
+}
+.bstr i:last-child {
+  right: 12%;
+}
+.decor .bstr i {
+  animation: strIn 1.4s 4s forwards;
+}
+@keyframes strIn {
+  to {
+    scale: 1 1;
+  }
+}
+.lb {
+  position: relative;
+  font-family:
+    "Pacifico", "Great Vibes", "Brush Script MT", "Segoe Script", cursive;
+  line-height: 0.8;
+  padding: 8px 6px;
+}
+.lb div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.w1 {
+  font-size: clamp(1.9rem, 8.5vw, 3rem);
+}
+.w2 {
+  font-size: clamp(2.5rem, 12vw, 4.8rem);
+}
+/* FIX: static neon glow (2 layers), no per-frame text-shadow animation */
+.lb .l {
+  display: inline-block;
+  opacity: 0;
+  color: #fff;
+  text-shadow:
+    0 0 6px #ff5fa2,
+    0 0 20px #ff2a7a;
+}
+.decor .lb .l {
+  animation:
+    letterIn 1s var(--dl) cubic-bezier(0.3, 1.6, 0.5, 1) both,
+    wave 2.4s calc(var(--dl) + 1.2s) ease-in-out infinite;
+}
+@keyframes letterIn {
+  from {
+    opacity: 0;
+    transform: translateY(-90px) rotate(-40deg) scale(0.2);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes wave {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-2deg);
+  }
+  50% {
+    transform: translateY(-9px) rotate(2deg) scale(1.06);
+  }
+}
+.lb .hh {
+  opacity: 0;
+  margin: 0 0.2em;
+  font-size: 0.55em;
+  color: #ff3d7f;
+  text-shadow: 0 0 14px #ff3d7f;
+}
+.decor .lb .hh {
+  animation:
+    letterIn 1s 7.4s both,
+    beat 1.1s 8.5s infinite;
+}
+@keyframes beat {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  15% {
+    transform: scale(1.35);
+  }
+  30% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.25);
+  }
+}
+
+/* balloons */
+#balloons {
+  position: fixed;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+}
+.bw {
+  position: absolute;
+  pointer-events: auto;
+  transform: translateY(120vh);
+}
+.decor .bw {
+  animation: fly 3.4s var(--dl) cubic-bezier(0.2, 0.9, 0.3, 1.1) forwards;
+}
+@keyframes fly {
+  to {
+    transform: translateY(0);
+  }
+}
+.balloon {
+  width: calc(58px * var(--s));
+  height: calc(72px * var(--s));
+  border-radius: 50% 50% 50% 50%/60% 60% 40% 40%;
+  background: radial-gradient(circle at 30% 30%, #fff9, var(--c) 45%);
+  cursor: pointer;
+  position: relative;
+  animation: bob 3s calc(var(--dl) + 3.4s) ease-in-out infinite alternate;
+}
+.balloon::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  width: 1px;
+  height: 70px;
+  background: #fff7;
+}
+.balloon::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  margin-left: -5px;
+  border: 5px solid transparent;
+  border-bottom-color: var(--c);
+  border-top: 0;
+}
+@keyframes bob {
+  from {
+    transform: translateY(-8px) rotate(-3deg);
+  }
+  to {
+    transform: translateY(8px) rotate(3deg);
+  }
+}
+.music .balloon {
+  animation-duration: 1s;
+}
+
+#fx {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+}
+/* FIX: hearts animate transform, not bottom */
+.heart {
+  position: fixed;
+  z-index: 6;
+  bottom: -30px;
+  pointer-events: none;
+  will-change: transform;
+  animation: rise 6s linear forwards;
+}
+@keyframes rise {
+  to {
+    transform: translateY(-115vh);
+  }
+}
+
+/* content */
+section {
+  position: relative;
+  z-index: 5;
+  min-height: 100vh;
+  padding: 270px 16px 70px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+#s2 {
+  padding-top: 1px;
+  justify-content: center;
+}
+.fadeIn {
+  opacity: 0;
+  transform: translateY(25px);
+  transition:
+    opacity 1.2s,
+    transform 1.2s;
+}
+.fadeIn.show {
+  opacity: 1;
+  transform: none;
+}
+.name {
+  font-size: clamp(1.8rem, 7vw, 3.2rem);
+  font-family: "Pacifico", "Brush Script MT", cursive;
+  color: var(--gold);
+  text-shadow: 0 0 20px #ffb300;
+}
+.date {
+  font-size: clamp(1.1rem, 4.2vw, 1.8rem);
+  letter-spacing: 3px;
+  color: #ffc2e0;
+}
+.name span,
+.date span {
+  display: inline-block;
+  animation: bn 1.6s ease-in-out infinite;
+}
+@keyframes bn {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-12px) scale(1.15);
+  }
+}
+.btn {
+  border: 0;
+  padding: 14px 28px;
+  font-size: 1.05rem;
+  border-radius: 40px;
+  color: #fff;
+  cursor: pointer;
+  background: linear-gradient(135deg, #ff5fa2, #ff9a44);
+  box-shadow: 0 0 25px #ff5fa2aa;
+  animation: pu 1.4s infinite;
+}
+@keyframes pu {
+  50% {
+    transform: scale(1.07);
+  }
+}
+.hint {
+  opacity: 0.85;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+/* cake */
+
+/* Responsive cake */
+.stage {
+  position: relative;
+  width: min(300px, 88vw);
+  height: 290px;
+  margin-top: 5px;
+}
+
+.plate {
+  position: absolute;
+  bottom: 0;
+  left: -6.67%;
+  width: 113.34%;
+  height: 18px;
+  border-radius: 50%;
+  background: linear-gradient(#eee, #aaa);
+  box-shadow: 0 8px 20px #0008;
+}
+
+.cake {
+  position: absolute;
+  bottom: 12px;
+  left: 0;
+  width: 100%;
+  display: flex;
+}
+
+.main {
+  width: 75%;
+}
+
+.slice {
+  width: 25%;
+  position: relative;
+  transition: transform 1.2s .7s cubic-bezier(.5,1.6,.5,1);
+  flex-shrink: 0;
+}
+
+.col {
+  min-width: 0;
+}
+.cut .slice {
+  transform: translateX(70px) rotate(8deg);
+}
+.l {
+  height: 80px;
+  position: relative;
+}
+.l1 {
+  background: linear-gradient(#ff8fb8, #e0457b);
+  border-radius: 0 0 10px 10px;
+}
+.l2 {
+  height: 70px;
+  background: linear-gradient(#8a5a3c, #5a3420);
+}
+.l3 {
+  height: 52px;
+  background: linear-gradient(#ffe3a3, #f5b75a);
+  border-radius: 10px 10px 0 0;
+}
+.main .l3 {
+  border-top-left-radius: 20px;
+}
+.slice .l3 {
+  border-top-right-radius: 20px;
+}
+.drip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 22px;
+  background: repeating-linear-gradient(
+    90deg,
+    #fff 0 22px,
+    transparent 22px 30px
+  );
+  border-radius: 0 0 14px 14px;
+  opacity: 0.9;
+}
+.cherry {
+  position: absolute;
+  top: -14px;
+  left: 28px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #ff8b8b, #c1121f);
+}
+
+.candles {
+  position: absolute;
+  bottom: 200px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: flex-end;
+  gap: 2px;
+  z-index: 5;
+}
+
+.cd {
+  width: clamp(6px, 3.2vw, 11px);
+  height: clamp(30px, 14vw, 48px);
+  flex: 0 1 11px;
+  min-width: 0;
+  border-radius: 3px;
+  position: relative;
+  background: repeating-linear-gradient(
+    45deg,
+    #fff 0 6px,
+    var(--c) 6px 12px
+  );
+}
+
+.fl {
+  position: absolute;
+  left: 50%;
+  top: -26px;
+  width: 14px;
+  height: 24px;
+  margin-left: -7px;
+  border-radius: 50% 50% 50% 50%/65% 65% 35% 35%;
+  background: radial-gradient(circle at 50% 70%, #fff6a8, #ffb300 55%, #ff5a00);
+  box-shadow: 0 0 14px 4px #ffb300aa;
+  transform-origin: bottom;
+  animation: fk 0.25s infinite alternate;
+}
+@keyframes fk {
+  from {
+    transform: scale(1, 1) rotate(-4deg);
+  }
+  to {
+    transform: scale(0.88, 1.12) rotate(4deg);
+  }
+}
+.out .fl {
+  display: none;
+}
+.smoke {
+  position: absolute;
+  left: 50%;
+  top: -20px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ddd8;
+  animation: sm 2s forwards;
+}
+@keyframes sm {
+  to {
+    transform: translateY(-80px) scale(5);
+    opacity: 0;
+  }
+}
+.knife {
+  position: absolute;
+  top: -170px;
+  left: 150px;
+  font-size: 80px;
+  z-index: 6;
+  transform: rotate(180deg);
+  opacity: 0;
+  pointer-events: none;
+}
+.cut .knife {
+  animation: kn 1.2s forwards;
+}
+@keyframes kn {
+  0% {
+    opacity: 1;
+    top: -170px;
+  }
+  60% {
+    opacity: 1;
+    top: 60px;
+  }
+  100% {
+    opacity: 0;
+    top: 60px;
+  }
+}
+
+/* photo + quote */
+.polaroid {
+  background: #fff;
+  padding: 14px 14px 50px;
+  border-radius: 6px;
+  box-shadow: 0 15px 40px #000a;
+  transform-origin: top center;
+  animation: sw 5s ease-in-out infinite alternate;
+  position: relative;
+  color: #444;
+  font-family: "Brush Script MT", cursive;
+  font-size: 1.6rem;
+  margin-top: 70px;
+}
+.polaroid::before {
+  content: "";
+  position: absolute;
+  top: -70px;
+  left: 50%;
+  width: 2px;
+  height: 70px;
+  background: #ccc;
+}
+.polaroid img,
+.ph {
+  width: min(70vw, 270px);
+  height: min(80vw, 320px);
+  object-fit: cover;
+  display: block;
+  border-radius: 3px;
+}
+.ph {
+  background: linear-gradient(135deg, #ffb3d1, #b9a7ff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 4rem;
+}
+.polaroid p {
+  position: absolute;
+  bottom: 10px;
+  left: 0;
+  right: 0;
+  margin: 0;
+}
+/* FIX: backdrop-filter removed, slightly more opaque background */
+.quote {
+  max-width: 800px;
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-size: clamp(1.2rem, 4.2vw, 1.9rem);
+  line-height: 1.5;
+  padding: 22px;
+  border-radius: 20px;
+  background: #ffffff22;
+  border: 1px solid #ffffff30;
+}
+.quote span {
+  opacity: 0;
+  display: inline-block;
+  animation: up 0.8s forwards;
+}
+@keyframes up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+#songBtn {
+  position: fixed;
+  bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+  right: 18px;
+  z-index: 60;
+}
+
+/* hanging photo card */
+.hangcard {
+  position: absolute;
+  right: 5%;
+  top: 255px;
+  translate: 0 -520px;
+  opacity: 0;
+  z-index: 5;
+}
+.decor .hangcard {
+  animation: cardDrop 2s 8s cubic-bezier(0.3, 1.35, 0.5, 1) forwards;
+}
+@keyframes cardDrop {
+  to {
+    translate: 0 0;
+    opacity: 1;
+  }
+}
+.hc-swing {
+  transform-origin: top center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: sw 4.5s ease-in-out infinite alternate;
+}
+.hc-string {
+  width: 70px;
+  height: 56px;
+  position: relative;
+}
+.hc-string::before,
+.hc-string::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  width: 2px;
+  height: 62px;
+  background: #e8d9a8;
+  transform-origin: bottom;
+}
+.hc-string::before {
+  left: 10px;
+  transform: rotate(-24deg);
+}
+.hc-string::after {
+  right: 10px;
+  transform: rotate(24deg);
+}
+.hc-star {
+  position: absolute;
+  top: -16px;
+  left: 50%;
+  translate: -50% 0;
+  font-size: 22px;
+  animation: tw 1.8s infinite;
+} /* FIX: "twk" was undefined, using "tw" */
+.hc-card {
+  background: #fff;
+  padding: 9px 9px 32px;
+  border-radius: 5px;
+  box-shadow:
+    0 12px 30px #000a,
+    0 0 16px #ffd86b66;
+  position: relative;
+  color: #555;
+  font-family: "Brush Script MT", cursive;
+  font-size: 1.15rem;
+  rotate: -3deg;
+}
+.hc-card::before,
+.hc-card::after {
+  content: "";
+  position: absolute;
+  top: -6px;
+  width: 14px;
+  height: 20px;
+  background: linear-gradient(#ff5fa2, #c81e66);
+  border-radius: 3px;
+}
+.hc-card::before {
+  left: 14px;
+}
+.hc-card::after {
+  right: 14px;
+}
+.hc-card img,
+.hc-card .hc-ph {
+  width: min(38vw, 150px);
+  height: min(46vw, 185px);
+  object-fit: cover;
+  display: block;
+  border-radius: 3px;
+}
+.hc-ph {
+  background: linear-gradient(135deg, #ffb3d1, #b9a7ff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+}
+.hc-card p {
+  position: absolute;
+  bottom: 5px;
+  left: 0;
+  right: 0;
+  margin: 0;
+}
+
+/* background hearts + intro heart */
+.bgh {
+  position: absolute;
+  bottom: -160px;
+  color: #ff4d94;
+  opacity: 0.1;
+  will-change: transform;
+  animation: flt linear infinite;
+}
+@keyframes flt {
+  to {
+    transform: translateY(-125vh) rotate(25deg);
+  }
+}
+.bigheart {
+  font-size: 5rem;
+  color: #ff3d7f;
+  text-shadow: 0 0 30px #ff2a7a;
+  animation: beat 1.2s infinite;
+}
+
+@media (max-width: 700px) {
+
+      /* Reduce gap between Birthday and Preeti on mobile */
+  #banners {
+    top: 75px;
+  }
+
+  section {
+    padding-top: 240px;
+  }
+
+    
+    /* Mobile cake and candle adjustments */
+  .stage {
+    width: min(300px, 88vw);
+    height: 260px;
+  }
+
+  .candles {
+    bottom: 190px;
+    width: 94%;
+  }
+
+  .cd {
+    height: 36px;
+  }
+
+  .fl {
+    width: 11px;
+    height: 19px;
+    margin-left: -5.5px;
+    top: -21px;
+  }
+
+  .plate {
+    height: 14px;
+  }
+
+  .cut .slice {
+    transform: translateX(55px) rotate(8deg);
+  }
+
+  .stars i,
+  .bgh {
+    display: none;
+  } /* FIX: lighter on phones */
+  .balloon {
+    animation: none;
+  }
+  .hangcard {
+    right: 2%;
+    top: 225px;
+  }
+  .hc-card img,
+  .hc-card .hc-ph {
+    width: 78px;
+    height: 98px;
+  }
+  .hc-card {
+    padding: 6px 6px 24px;
+    font-size: 0.9rem;
+  }
+  .hc-string {
+    width: 50px;
+    height: 38px;
+  }
+  .hc-string::before,
+  .hc-string::after {
+    height: 44px;
+  }
+  .date {
+    letter-spacing: 1px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bgh,
+  .stars i {
+    animation: none;
+  }
+}

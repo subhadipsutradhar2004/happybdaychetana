@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>HBD Chetana 🎂</title>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Great+Vibes&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="stars" id="stars"></div>
+    <canvas id="fx"></canvas>
+    <svg id="chain" preserveAspectRatio="none"></svg>
+    <div id="hangs"></div>
+    <div id="banners"></div>
+    <div id="balloons"></div>
+
+    <div id="intro">
+      <div class="bigheart">❤</div>
+      <h2>A small surprise for you…</h2>
+      <button class="btn" id="open">Tap to open ✨</button>
+    </div>
+
+    <button class="btn hide" id="songBtn">🎵 Play birthday song</button>
+
+    <section id="s1">
+      <div class="hangcard" id="hangcard">
+        <div class="hc-swing">
+          <div class="hc-string"><span class="hc-star">⭐</span></div>
+          <div class="hc-card">
+            <img id="hangPhoto" alt="Her photo" src="" />
+            <div class="hc-ph hide" id="hangPh">🎂</div>
+            <p id="hcCap"></p>
+          </div>
+        </div>
+      </div>
+      <div class="name fadeIn" id="nameEl"></div>
+      <div class="date fadeIn" id="dateEl"></div>
+      <!-- <p class="hint fadeIn" id="hint">Make a wish, then blow out the candles 🕯️</p> -->
+      <div class="stage fadeIn" id="stage">
+        <div class="candles" id="candles"></div>
+        <div class="cake">
+          <div class="col main">
+            <div class="l l3">
+              <div class="drip"></div>
+              <div class="cherry"></div>
+            </div>
+            <div class="l l2"></div>
+            <div class="l l1"></div>
+          </div>
+          <div class="col slice">
+            <!-- FIX: duplicate id="candles" removed -->
+            <div class="l l3"><div class="drip"></div></div>
+            <div class="l l2"></div>
+            <div class="l l1"></div>
+          </div>
+        </div>
+        <div class="knife">🔪</div>
+        <div class="plate"></div>
+      </div>
+      <button class="btn fadeIn" id="blowBtn">💨 Blow the candles</button>
+      <button class="btn hide" id="cutBtn">🍰 Cut the cake</button>
+    </section>
+
+    <section id="s2" class="hide">
+      <div class="polaroid">
+        <img id="photo" alt="Birthday girl" src="" />
+        <div class="ph hide" id="ph">🎂</div>
+        <p id="cap"></p>
+      </div>
+      <div class="quote" id="quoteEl"></div>
+      <button class="btn" onclick="party()">🎊 More confetti!</button>
+    </section>
+
+    <script>
+      /* ================== EDIT THESE ================== */
+      const CONFIG = {
+        name: "Chetana",
+        date: "2008-10-30", // YYYY-MM-DD
+        photo: "chetu1.heic",
+        hangPhoto: "chetu2.heic",
+        caption: "Forever special 💕",
+        quote:
+          "Happiest Birthday Chetana! May your day be as beautiful and bright as your smile. Keep Smiling and Keep Shining! Wishing you a year filled with love, laughter, and endless happiness. 🎉🎂💖",
+        songFile: "./song.mp3",
+      };
+      /* ================================================ */
+
+      const $ = (id) => document.getElementById(id);
+      const rnd = (a, b) => a + Math.random() * (b - a);
+      const COL = ["#ff5fa2", "#ffd86b", "#7ee8fa", "#b9a7ff", "#7dff9b", "#ff9a44"];
+
+      // FIX: phone detection to lighten everything
+      const MOB = Math.min(innerWidth, innerHeight) < 700 || /Android|iPhone|iPad/i.test(navigator.userAgent);
+      const K = MOB ? 0.35 : 1; // particle scale
+
+      // Background hearts (FIX: 16 -> 6) and stars (FIX: 50 -> 20)
+      for (let i = 0; i < 6; i++) {
+        const g = document.createElement("div");
+        g.className = "bgh";
+        g.textContent = "♥";
+        g.style.cssText = `left:${rnd(0, 95)}%;font-size:${rnd(30, 120)}px;animation-duration:${rnd(18, 36)}s;animation-delay:-${rnd(0, 30)}s`;
+        $("stars").appendChild(g);
+      }
+      for (let i = 0; i < 20; i++) {
+        const s = document.createElement("i");
+        s.style.cssText = `left:${rnd(0, 100)}%;top:${rnd(0, 100)}%;animation-delay:${rnd(0, 3)}s`;
+        $("stars").appendChild(s);
+      }
+
+      // Chain lights
+      function chain() {
+        const W = innerWidth;
+        const svg = $("chain");
+        svg.setAttribute("viewBox", `0 0 ${W} 140`);
+        let h = "";
+        [0, 1].forEach((k) => {
+          const y0 = 14 + k * 18;
+          const sag = 45 + k * 18;
+          const n = Math.round(W / 38);
+          h += `<path d="M0 ${y0} Q ${W / 2} ${y0 + sag * 2} ${W} ${y0}" fill="none" stroke="#555" stroke-width="2"/>`;
+          for (let i = 1; i < n; i++) {
+            const t = i / n;
+            const x = W * t;
+            const y = (1 - t) * (1 - t) * y0 + 2 * t * (1 - t) * (y0 + sag * 2) + t * t * y0;
+            const c = COL[(i + k) % 6];
+            h += `<g class="bulb" style="color:${c};animation-delay:${(1.8 + i * (4.5 / n) + k * 0.5).toFixed(2)}s"><rect x="${x - 3}" y="${y}" width="6" height="6" fill="#666"/><ellipse cx="${x}" cy="${y + 14}" rx="6" ry="9" fill="${c}"/></g>`;
+          }
+        });
+        svg.innerHTML = h;
+      }
+      chain();
+
+      // Canvas
+      const cv = $("fx");
+      const cx = cv.getContext("2d");
+      function rs() {
+        cv.width = innerWidth;
+        cv.height = innerHeight;
+      }
+      rs();
+
+      // FIX: debounced resize; rebuild chain only if the width changed
+      // (phone address bar hiding/showing fires resize while scrolling)
+      let lastW = innerWidth, lastH = innerHeight, rt;
+      addEventListener("resize", () => {
+        clearTimeout(rt);
+        rt = setTimeout(() => {
+          if (innerWidth !== lastW) {
+            lastW = innerWidth;
+            chain();
+          }
+          if (innerWidth !== lastW || Math.abs(innerHeight - lastH) > 150) rs();
+          lastH = innerHeight;
+        }, 200);
+      });
+
+      // Hanging bulbs
+      [["3%", 70, "#ffd86b"], ["12%", 120, "#ff5fa2"], ["88%", 110, "#7ee8fa"], ["96%", 65, "#7dff9b"]].forEach(([l, h, c], i) => {
+        const d = document.createElement("div");
+        d.className = "hang";
+        d.style.cssText = `left:${l};--c:${c};--dl:${(2.4 + i * 0.9).toFixed(1)}s`;
+        d.innerHTML = `<b style="height:${h}px"></b><span></span>`;
+        $("hangs").appendChild(d);
+      });
+
+      // Animated Happy Birthday banner
+      (function () {
+        const bn = $("banners");
+        bn.innerHTML =
+          '<div class="lbwrap"><div class="bstr"><i></i><i></i></div><div class="lb"><div class="w1"></div><div class="w2"></div></div></div>';
+        let k = 0;
+        const hh = '<span class="hh">♥</span>';
+        const mk = (el, word, hearts) => {
+          if (hearts) el.insertAdjacentHTML("beforeend", hh);
+          [...word].forEach((ch) => {
+            const sp = document.createElement("span");
+            sp.className = "l";
+            sp.textContent = ch;
+            sp.style.setProperty("--dl", (4.8 + k * 0.2).toFixed(2) + "s");
+            k++;
+            el.appendChild(sp);
+          });
+          if (hearts) el.insertAdjacentHTML("beforeend", hh);
+        };
+        mk(bn.querySelector(".w1"), "Happy", false);
+        mk(bn.querySelector(".w2"), "Birthday", true);
+      })();
+
+      // Balloons (FIX: fewer on phones)
+      [
+        [2, 10, 1.1], [9, 28, 0.9], [1, 48, 1], [6, 66, 0.8], [12, 6, 0.8],
+        [86, 8, 0.8], [92, 26, 1.1], [96, 46, 0.9], [88, 64, 1], [80, 4, 0.9],
+      ]
+        .filter((_, i) => !MOB || i % 5 < 3)
+        .forEach(([x, y, s], i) => {
+          const side = x < 50 ? "left" : "right";
+          const pos = x < 50 ? x : 100 - x - 6;
+          const w = document.createElement("div");
+          w.className = "bw";
+          w.style.cssText = `${side}:${pos}%;bottom:${y}%;--dl:${(6.8 + (i % 5) * 0.6 + (i > 4 ? 0.3 : 0)).toFixed(2)}s`;
+          const b = document.createElement("div");
+          b.className = "balloon";
+          b.style.cssText = `--c:${COL[i % 6]};--s:${s}`;
+          b.onclick = (e) => {
+            burst(e.clientX, e.clientY, 30);
+            w.remove();
+          };
+          w.appendChild(b);
+          $("balloons").appendChild(w);
+        });
+
+      // Floating hearts (FIX: slower spawn, capped on screen)
+      setInterval(() => {
+        if (!document.body.classList.contains("glitter")) return;
+        if (document.querySelectorAll(".heart").length > (MOB ? 5 : 10)) return;
+        const h = document.createElement("div");
+        h.className = "heart";
+        h.textContent = ["💖", "✨", "💗", "🌸"][Math.floor(rnd(0, 4))];
+        h.style.cssText += `left:${rnd(0, 95)}%;font-size:${rnd(16, 34)}px`;
+        document.body.appendChild(h);
+        setTimeout(() => h.remove(), 6000);
+      }, 1500);
+
+      // Confetti (FIX: scaled by K)
+      let P = [];
+      function burst(x, y, n = 60) {
+        n = Math.ceil(n * K);
+        for (let i = 0; i < n; i++) {
+          P.push({ x, y, vx: rnd(-7, 7), vy: rnd(-11, -2), c: COL[i % 6], s: rnd(5, 10), r: rnd(0, 6), l: 100 + rnd(0, 60) });
+        }
+      }
+      function party() {
+        for (let i = 0; i < 6; i++) {
+          setTimeout(() => burst(rnd(100, innerWidth - 100), rnd(100, innerHeight / 2), 70), i * 180);
+        }
+      }
+
+      let G = [], glitterOn = false, tt = 0, wasActive = false;
+      const GLITTER_RATE = MOB ? 0.1 : 0.15; // FIX: was 0.6
+
+      (function loop() {
+        requestAnimationFrame(loop);
+        tt++;
+        // FIX: skip all work when nothing is on screen
+        const active = glitterOn || P.length || G.length;
+        if (!active) {
+          if (wasActive) cx.clearRect(0, 0, cv.width, cv.height);
+          wasActive = false;
+          return;
+        }
+        wasActive = true;
+        cx.clearRect(0, 0, cv.width, cv.height);
+
+        if (glitterOn && Math.random() < GLITTER_RATE) {
+          G.push({
+            x: rnd(0, cv.width), y: -10, vy: rnd(0.6, 1.8), ph: rnd(0, 6), s: rnd(2, 5), dx: rnd(0.2, 0.8),
+            c: ["#fff", "#ffd86b", "#ff9ec7", "#ffb3d9"][Math.floor(rnd(0, 4))],
+          });
+        }
+        G = G.filter((g) => g.y < cv.height + 10);
+        G.forEach((g) => {
+          g.y += g.vy;
+          g.x += Math.sin(g.y / 30 + g.ph) * g.dx;
+          cx.save();
+          cx.translate(g.x, g.y);
+          cx.rotate(Math.PI / 4 + tt / 40);
+          cx.globalAlpha = 0.35 + 0.65 * Math.abs(Math.sin(tt / 10 + g.ph));
+          cx.fillStyle = g.c;
+          cx.fillRect(-g.s / 2, -g.s / 2, g.s, g.s);
+          cx.fillRect(-g.s * 1.6, -0.5, g.s * 3.2, 1);
+          cx.restore();
+        });
+
+        P = P.filter((p) => p.l-- > 0);
+        P.forEach((p) => {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.25;
+          p.vx *= 0.99;
+          p.r += 0.2;
+          cx.save();
+          cx.translate(p.x, p.y);
+          cx.rotate(p.r);
+          cx.fillStyle = p.c;
+          cx.globalAlpha = Math.min(1, p.l / 30);
+          cx.fillRect(-p.s / 2, -p.s / 4, p.s, p.s / 2);
+          cx.restore();
+        });
+      })();
+
+      // Animated text helper
+      const letters = (el, t, step = 0.07) => {
+        el.innerHTML = "";
+        [...t].forEach((c, i) => {
+          const s = document.createElement("span");
+          s.textContent = c === " " ? "\u00A0" : c;
+          s.style.animationDelay = i * step + "s";
+          el.appendChild(s);
+        });
+      };
+
+      // Candles
+      const cds = [];
+      for (let i = 0; i < 6; i++) {
+        const c = document.createElement("div");
+        c.className = "cd";
+        c.style.setProperty("--c", COL[i]);
+        c.innerHTML = '<div class="fl"></div>';
+        $("candles").appendChild(c);
+        cds.push(c);
+      }
+      let left = 6;
+
+      function blowOne() {
+        const c = cds.find((x) => !x.classList.contains("out"));
+        if (!c) return;
+        c.classList.add("out");
+        const s = document.createElement("div");
+        s.className = "smoke";
+        c.appendChild(s);
+        left--;
+        if (!left) {
+          setTimeout(() => {
+            party();
+            $("blowBtn").classList.add("hide");
+            $("cutBtn").classList.remove("hide");
+            const hint = $("hint"); // FIX: no crash if the hint is missing
+            if (hint) hint.textContent = "Wish granted! Now cut the cake 🍰";
+          }, 500);
+        }
+      }
+      $("blowBtn").onclick = () => {
+        blowOne();
+        if (left) setTimeout(blowOne, 150);
+      };
+
+      // Cut the cake -> photo + quote
+      $("cutBtn").onclick = () => {
+        $("stage").classList.add("cut");
+        $("cutBtn").classList.add("hide");
+        setTimeout(() => {
+          party();
+          const s = $("s2");
+          s.classList.remove("hide");
+          setTimeout(() => s.scrollIntoView({ behavior: "smooth" }), 400);
+        }, 1800);
+      };
+
+      // Birthday song
+      let sCtx, playing = false, timers = [], audioEl = null;
+      const N = { G4: 392, A4: 440, B4: 493.88, C5: 523.25, D5: 587.33, E5: 659.25, F5: 698.46, G5: 783.99 };
+      const TUNE = [
+        ["G4", 0.75], ["G4", 0.25], ["A4", 1], ["G4", 1], ["C5", 1], ["B4", 2],
+        ["G4", 0.75], ["G4", 0.25], ["A4", 1], ["G4", 1], ["D5", 1], ["C5", 2],
+        ["G4", 0.75], ["G4", 0.25], ["G5", 1], ["E5", 1], ["C5", 1], ["B4", 1], ["A4", 2],
+        ["F5", 0.75], ["F5", 0.25], ["E5", 1], ["C5", 1], ["D5", 1], ["C5", 2],
+      ];
+
+      function stopSong() {
+        playing = false;
+        timers.forEach(clearTimeout);
+        timers = [];
+        audioEl && audioEl.pause();
+        sCtx && sCtx.close();
+        sCtx = null;
+        document.body.classList.remove("music");
+        $("songBtn").textContent = "🎵 Play birthday song";
+      }
+
+      function playSong() {
+        playing = true;
+        document.body.classList.add("music");
+        $("songBtn").textContent = "⏸ Stop song";
+
+        if (CONFIG.songFile) {
+          audioEl = audioEl || new Audio(CONFIG.songFile);
+          audioEl.loop = false;
+          audioEl.onended = stopSong;
+          audioEl.play().catch(() => stopSong()); // FIX: handle blocked/failed playback
+          return;
+        }
+
+        sCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const beat = 0.55;
+        let t = sCtx.currentTime + 0.1;
+        TUNE.forEach(([n, d]) => {
+          const o = sCtx.createOscillator();
+          const g = sCtx.createGain();
+          const o2 = sCtx.createOscillator();
+          o.type = "triangle";
+          o2.type = "sine";
+          o.frequency.value = N[n];
+          o2.frequency.value = N[n] / 2;
+          g.gain.setValueAtTime(0, t);
+          g.gain.linearRampToValueAtTime(0.28, t + 0.03);
+          g.gain.exponentialRampToValueAtTime(0.001, t + d * beat);
+          o.connect(g);
+          o2.connect(g);
+          g.connect(sCtx.destination);
+          o.start(t);
+          o2.start(t);
+          o.stop(t + d * beat + 0.05);
+          o2.stop(t + d * beat + 0.05);
+          t += d * beat;
+        });
+        timers.push(setTimeout(() => { if (playing) stopSong(); }, (t - sCtx.currentTime) * 1000 + 400));
+        burst(innerWidth / 2, innerHeight / 2, 50);
+      }
+      $("songBtn").onclick = () => (playing ? stopSong() : playSong());
+
+      // Start: open -> decorate -> song -> cake
+      $("open").onclick = () => {
+        $("intro").classList.add("gone");
+        setTimeout(() => $("intro").remove(), 1000);
+        document.body.classList.add("decor");
+        playSong();
+
+        setTimeout(() => {
+          const b = $("hangcard").getBoundingClientRect();
+          burst(b.left + b.width / 2, b.top + b.height / 2, 45);
+        }, 10000);
+
+        $("songBtn").classList.remove("hide");
+
+        setTimeout(() => {
+          document.body.classList.add("glitter");
+          glitterOn = true;
+          party();
+          letters($("nameEl"), CONFIG.name, 0.09);
+          const d = new Date(CONFIG.date + "T00:00:00");
+          if (!isNaN(d)) {
+            letters(
+              $("dateEl"),
+              "🎂 " + d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }),
+              0.06,
+            );
+          }
+          document.querySelectorAll(".fadeIn").forEach((e, i) => {
+            setTimeout(() => e.classList.add("show"), i * 350);
+          });
+        }, 13000);
+      };
+
+      // Hanging card photo
+      const hp = $("hangPhoto");
+      let tried = 0;
+      hp.onerror = () => {
+        if (!tried++) {
+          hp.src = CONFIG.photo;
+        } else {
+          hp.classList.add("hide");
+          $("hangPh").classList.remove("hide");
+        }
+      };
+      hp.src = CONFIG.hangPhoto;
+      $("hcCap").textContent = "💖 " + CONFIG.name;
+
+      // Photo, caption, quote
+      const ph = $("photo");
+      ph.onerror = () => {
+        ph.classList.add("hide");
+        $("ph").classList.remove("hide");
+      };
+      ph.src = CONFIG.photo;
+      $("cap").textContent = CONFIG.caption;
+
+      CONFIG.quote.split(" ").forEach((w, i) => {
+        const s = document.createElement("span");
+        s.textContent = w + "\u00A0";
+        s.style.animationDelay = i * 0.12 + "s";
+        $("quoteEl").appendChild(s);
+      });
+    </script>
+  </body>
+</html>
